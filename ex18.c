@@ -28,14 +28,14 @@ void swap(int *numbers, int index_a, int index_b)
         numbers[index_b] = temp;
 }
 
-int partition(int *array, int left, int right, int pivot_index, compare_cb comp)
+int partition(int *array, int left, int right, int pivot_index, compare_cb cmp)
 {
         int i, pivot, store_index;
         pivot = array[pivot_index];
         swap(array, pivot_index, right);
         store_index = left;
         for (i = left; i < right; ++i) {
-                if (comp(array[i], pivot) < 0) {
+                if (cmp(array[i], pivot) < 0) {
                         swap(array, i, store_index);
                         store_index += 1;
                 }
@@ -44,14 +44,14 @@ int partition(int *array, int left, int right, int pivot_index, compare_cb comp)
         return store_index;
 }
 
-void q_sort(int *numbers, int left, int right, compare_cb comp)
+void q_sort(int *numbers, int left, int right, compare_cb cmp)
 {
         int pivotIndex, newIndex;
         if (left < right) {
                 pivotIndex = right;
-                newIndex = partition(numbers, left, right, pivotIndex, comp);
-                q_sort(numbers, left, newIndex - 1, comp);
-                q_sort(numbers, newIndex + 1, right, comp);
+                newIndex = partition(numbers, left, right, pivotIndex, cmp);
+                q_sort(numbers, left, newIndex - 1, cmp);
+                q_sort(numbers, newIndex + 1, right, cmp);
         }
 }
 
