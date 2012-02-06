@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <apr_errno.h>
 #include <apr_file_io.h>
+
 #include "db.h"
 #include "bstrlib.h"
 #include "dbg.h"
@@ -44,11 +45,12 @@ int DB_update(const char *url)
         check(db, "Failed to open DB file: %s", DB_FILE);
 
         bstring line = bfromcstr(url);
-        int rc = bconchar(line, '\n');
-        check(rc != BSTR_ERR,
-              "Failed to add newline: %s", (char *) line->data);
+        bconchar(line, '\n');
+        /* int rc = bconchar(line, '\n'); */
+        /* check(rc != BSTR_ERR, */
+        /*       "Failed to add newline: %s", (char *) line->data); */
 
-        rc = fwrite(line->data, blength(line), 1, db);
+        int rc = fwrite(line->data, blength(line), 1, db);
         check(rc == 1, "Failed to append to the db.");
 
         DB_close(db);
@@ -80,26 +82,24 @@ error: //fallthrough
         return res;
 }
 
-int BD_init()
+int DB_init()
 {
         apr_pool_t *p = NULL;
         apr_pool_initialize();
         apr_pool_create(&p, NULL);
 
-        int st = access(DB_DIR, W_OK | X_OK);
-        check(st == 0, "Failed to obtain access to %s: ", DB_DIR);
+        if(access(DB_DIR, W_OK | X_OK) == -1) {
+                apr_status_t rc = apr_dir_make_recursive(DB_DIR,
+                                                         APR_UREAD | APR_UWRITE | APR_UEXECUTE |
+                                                         APR_GREAD | APR_GWRITE | APR_GEXECUTE, p);
+                check(rc == APR_SUCCESS, "Failed to make database dir: %s", DB_DIR);
+        }
 
-        apr_status_t rc = apr_dir_make_recursive(DB_DIR,
-                            APR_UREAD | APR_UWRITE | APR_UEXECUTE |
-                            APR_GREAD | APR_GWRITE | APR_GEXECUTE, p);
-        check(rc == APR_SUCCESS, "Failed to make database dir: %s", DB_DIR);
-
-        st = access(DB_FILE, W_OK);
-        check(st == 0, "Failed to obtain access to %s: ", DB_FILE);
-
-        FILE *db = DB_open(DB_FILE, "w");
-        check(db, "Cannot open database: %s", DB_FILE);
-        DB_close(db);
+        if(access(DB_FILE, W_OK) == -1) {
+                FILE *db = DB_open(DB_FILE, "w");
+                check(db, "Cannot open database: %s", DB_FILE);
+                DB_close(db);
+        }
 
         apr_pool_destroy(p);
         return 0;
