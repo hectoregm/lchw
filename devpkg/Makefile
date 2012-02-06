@@ -4,7 +4,7 @@ LDFLAGS=-lapr-1 -pthread -laprutil-1
 
 all: devpkg
 
-devpkg: bstrlib.o db.o shell.o commands.o
+devpkg: bstrlib.o db.o shell.o command.o
 
 install: all
 	install -d ${DESTDIR}/${PREFIX}/bin/

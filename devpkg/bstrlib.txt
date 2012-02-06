@@ -180,7 +180,7 @@ To illustrate the value of this, consider the following example:
         strcpy (p = malloc (13 * sizeof (char)), "Hello,");
         strcat (p, " World");
 
-This is not correct because malloc may return NULL (due to an out of memory 
+This is not correct because malloc may return NULL (dueb to an out of memory 
 condition), and the behaviour of strcpy is undefined if either of its 
 parameters are NULL.  However:
 
